@@ -4,6 +4,8 @@ library(dplyr)
 library(tidyr)
 library(data.table)
 library(odbc)
+library(DBI)
+
 
 ## connect to local postgres db
 source("/Users/hanson377/Desktop/script_parameters/economic_data.R")
@@ -18,9 +20,11 @@ con <- DBI::dbConnect(odbc::odbc(),
 
 source("/Users/hanson377/Desktop/script_parameters/bls_keys.R")
 
-state_keys <- read.delim('https://download.bls.gov/pub/time.series/la/la.area', header = TRUE, sep = "\t")
-state_keys <- state_keys %>% filter(area_type_code == 'A') %>% select(area_text,area_code )
+state_keys <- read.delim('https://download.bls.gov/pub/time.series/sm/sm.state', header = TRUE, sep = "\t")
+state_keys <- state_keys %>% select(state_code,state_name) %>% filter(state_name != 'All States')
+state_keys$state_code <- ifelse(state_keys$state_code <= 9, paste('0',state_keys$state_code,sep=''),state_keys$state_code)
 
+## create code for pulling data 
 prefix <- 'SM'
 season_adjustment <- 'U'
 industry <- '05000000'
@@ -68,7 +72,6 @@ private_wages <- private_wages %>% select(state_code,state_name,year,period,peri
 
 ## drop old table, create new one
 dbExecute(con,"DROP TABLE private_wages;")
-dbExecute(con,"CREATE TABLE private_wages (state_code VARCHAR(50), state_name TEXT, year INT, period VARCHAR(50),periodName VARCHAR(50),value VARCHAR(50),geo_type VARCHAR(50));")
 dbWriteTable(con, "private_wages", private_wages, OVERWRITE = TRUE, append = TRUE,row.names =FALSE)
 
 ## test that data is live
