@@ -11,7 +11,7 @@ library(data.table)
 
 
 ## set up post gres connections
-source("/Users/hanson377/Desktop/script_parameters/economic_data.R")
+source("/Users/hanson377/Desktop/script_parameters/postgres_keys.R")
 
 con <- DBI::dbConnect(odbc::odbc(),
   driver = "PostgreSQL Driver",
