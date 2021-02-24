@@ -24,7 +24,7 @@ state_keys <- read.delim('https://download.bls.gov/pub/time.series/sm/sm.state',
 state_keys <- state_keys %>% select(state_code,state_name) %>% filter(state_name != 'All States')
 state_keys$state_code <- ifelse(state_keys$state_code <= 9, paste('0',state_keys$state_code,sep=''),state_keys$state_code)
 
-## create code for pulling data 
+## create code for pulling data
 prefix <- 'SM'
 season_adjustment <- 'U'
 industry <- '05000000'
