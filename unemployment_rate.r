@@ -52,7 +52,7 @@ series_id <- state_keys[['series_id']]
 payload <- list(
 'seriesid' = series_id,
 'startyear' = 2005,
-'endyear' = 2020,
+'endyear' = 2021,
 'registrationKey' = API_Key)
 state_unemployment <- blsAPI(payload, api_version = 2, return_data_frame = T)
 }
@@ -71,11 +71,11 @@ state_unemployment <- state_unemployment %>% select(area_code,area_text,year,per
 
 
 ## drop old table, create new one
-dbExecute(con,"DROP TABLE state_unemployment;")
-dbWriteTable(con, "state_unemployment", state_unemployment, OVERWRITE = TRUE, append = TRUE,row.names =FALSE)
+dbExecute(con,"DROP TABLE state_unemployment_rate;")
+dbWriteTable(con, "state_unemployment_rate", state_unemployment, OVERWRITE = TRUE, append = TRUE,row.names =FALSE)
 
 ## test that data is live
-data_test <- dbGetQuery(con, "SELECT * FROM state_unemployment limit 100")
+data_test <- dbGetQuery(con, "SELECT * FROM state_unemployment_rate limit 100")
 rm(data_test)
 
 ## now do metro statistical areas
@@ -103,7 +103,7 @@ series_id <- msa_keys[['series_id']]
 payload <- list(
 'seriesid' = series_id,
 'startyear' = 2005,
-'endyear' = 2020,
+'endyear' = 2021,
 'registrationKey' = API_Key)
 msa_unemployment <- blsAPI(payload, api_version = 2, return_data_frame = T)
 }

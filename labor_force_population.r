@@ -1,4 +1,4 @@
-## pulls seasonally adjusted unemployed rates for states, counties, and major metrocs
+## pulls seasonally adjusted labor force participation rates for states, counties, and major metrocs
 ## after pulling, script cleans data and saves it to PostgreSQL database for easy access later
 
 
@@ -33,7 +33,7 @@ state_list <- list(state_keys$area_code)
 
 prefix <- 'LA'
 season_adjustment <- 'U'
-measure_code <- '08'
+measure_code <- '06'
 state_keys$series_id <- paste(prefix,season_adjustment,state_keys$area_code,measure_code,sep='')
 
 state_series_id <- state_keys[['series_id']]
@@ -56,9 +56,9 @@ series_id <- state_keys[['series_id']]
 payload <- list(
 'seriesid' = series_id,
 'startyear' = 2005,
-'endyear' = 2020,
+'endyear' = 2021,
 'registrationKey' = API_Key)
-state_labor_participation <- blsAPI(payload, api_version = 2, return_data_frame = T)
+state_labor_force_population <- blsAPI(payload, api_version = 2, return_data_frame = T)
 }
 
 data <- list()
@@ -67,17 +67,17 @@ for (i in groups) {
 data[[i]] = data.frame(tap_api(i))
 }
 
-state_labor_participation <- rbindlist(data)
+state_labor_force_population <- rbindlist(data)
 
-state_labor_participation$area_code <- substr(state_labor_participation$seriesID,4,18)
-state_labor_participation <- state_labor_participation %>% left_join(state_keys, by='area_code')
-state_labor_participation <- state_labor_participation %>% select(area_code,area_text,year,period,periodname=periodName,value) %>% mutate(geo_type = 'state')
+state_labor_force_population$area_code <- substr(state_labor_force_population$seriesID,4,18)
+state_labor_force_population <- state_labor_force_population %>% left_join(state_keys, by='area_code')
+state_labor_force_population <- state_labor_force_population %>% select(area_code,area_text,year,period,periodname=periodName,value) %>% mutate(geo_type = 'state')
 
 
 ## drop old table, create new one
-dbExecute(con,"DROP TABLE state_labor_participation;")
-dbWriteTable(con, "state_labor_participation", state_labor_participation, OVERWRITE = TRUE, append = TRUE,row.names =FALSE)
+dbExecute(con,"DROP TABLE state_labor_force_population;")
+dbWriteTable(con, "state_labor_force_population", state_labor_force_population, OVERWRITE = TRUE, append = TRUE,row.names =FALSE)
 
 ## test that data is live
-data_test <- dbGetQuery(con, "SELECT * FROM state_labor_participation")
+data_test <- dbGetQuery(con, "SELECT * FROM state_labor_force_population")
 rm(data_test)
